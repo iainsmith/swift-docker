@@ -22,7 +22,7 @@ Group() {
     /// swift docker test -s 4.0
     /// swift docker test -s 4.0 -w
     /// swift docker test --swift 4.0 --write-dockerfile
-    /// swift docker test -i swiftdocker/swift:latest
+    /// swift docker test --image swiftdocker/swift:latest
     $0.command("test",
                version, image, writeDockerfile,
                description: "Build and test the SPM package") { version, image, shouldWriteToLocalDir in
