@@ -1,10 +1,3 @@
-//
-//  DockerCommands.swift
-//  SwiftTestLinux
-//
-//  Created by iainsmith on 09/04/2018.
-//
-
 import ShellOut
 
 extension ShellOutCommand {
@@ -13,18 +6,19 @@ extension ShellOutCommand {
     }
 
     static func dockerBuild(tag: String, dockerFile: String) -> ShellOutCommand {
-        let cmd = "docker build -t \(tag) \(dockerFile)"
-        return ShellOutCommand(string: cmd)
+        let file = dockerFile == "." ? dockerFile : "--file \(dockerFile)"
+        let dockerBuild = "docker build -t \(tag) . \(file)"
+        return ShellOutCommand(string: dockerBuild)
     }
 
     static func dockerRun(tag: String, remove: Bool, command: String) -> ShellOutCommand {
         let removeTag = remove ? "--rm" : ""
-        let cmd = "docker run \(removeTag) \(tag) \(command)"
-        return ShellOutCommand(string: cmd)
+        let dockerRun = "docker run \(removeTag) \(tag) \(command)"
+        return ShellOutCommand(string: dockerRun)
     }
 
     static func dockerRemoveImages(matchingPattern pattern: String) -> ShellOutCommand {
-        let cmd = "docker images -a | grep \"\(pattern)\" | awk '{print $3}' | xargs docker rmi"
-        return ShellOutCommand(string: cmd)
+        let removeImages = "docker images -a | grep \"\(pattern)\" | awk '{print $3}' | xargs docker rmi"
+        return ShellOutCommand(string: removeImages)
     }
 }
