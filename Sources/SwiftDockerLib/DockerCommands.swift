@@ -21,7 +21,7 @@ func cleanup(path: String, fileManager: FileManager, silent: Bool = false) {
 
 func runDockerTests(image: DockerImage, writeDockerFile shouldSaveFile: Bool) throws {
     let fileManager = FileManager.default
-    let tempDockerFilePath = fileManager.currentDirectoryPath.appending(tempDockerFilePathComponent)
+    let tempDockerFilePath = NSTemporaryDirectory().appending(tempDockerFilePathComponent)
 
     do {
         cleanup(path: tempDockerFilePath, fileManager: fileManager, silent: true)
@@ -29,7 +29,7 @@ func runDockerTests(image: DockerImage, writeDockerFile shouldSaveFile: Bool) th
         let directoryName = fileManager.currentDirectoryName
         let minimalDockerfile = makeMinimalDockerFile(image: image.imageName, directory: directoryName)
 
-        printTitle("Creating temporary Dockerfile at \(tempDockerFilePathComponent)")
+        printTitle("Creating temporary Dockerfile at \(tempDockerFilePath)")
         printBody(minimalDockerfile)
         try minimalDockerfile.write(toFile: tempDockerFilePath, atomically: true, encoding: .utf8)
 

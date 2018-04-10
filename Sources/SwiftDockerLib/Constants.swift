@@ -2,7 +2,7 @@ import Foundation
 
 let dockerImagePrefix = "spm-test-"
 
-let tempDockerFilePathComponent = "/.temp-dockerfile"
+let tempDockerFilePathComponent = "temp-dockerfile"
 fileprivate let defaultDockerPathComponent = "/Dockerfile"
 
 func makeDefaultImage(forVersion version: String) -> String {
