@@ -1,16 +1,5 @@
-/// NOTE
-///
-/// Shell out should only be called from this file so that it's easy to swap out if we can't
-/// get streaming output working.
-
 import Foundation
 import ShellOut
-
-func runAndLog(_ cmd: ShellOutCommand, prefix: String) throws {
-    printTitle("\(prefix): \(cmd.string)")
-    let output = try shellOut(to: cmd)
-    printBody(output)
-}
 
 // MARK: Run & Delete operations
 

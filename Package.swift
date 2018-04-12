@@ -4,12 +4,12 @@
 import PackageDescription
 
 let package = Package(
-    name: "Swift-Docker-CLI",
+    name: "SwiftDockerCLI",
     products: [
         .executable(name: "swift-docker", targets: ["SwiftDocker"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/JohnSundell/ShellOut", from: "2.1.0"),
+        .package(url: "https://github.com/iainsmith/ShellOut", from: "2.2.0"),
         .package(url: "https://github.com/kylef/Commander", from: "0.8.0"),
         .package(url: "https://github.com/onevcat/Rainbow", from: "3.1.1"),
     ],
