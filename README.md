@@ -1,21 +1,33 @@
-# swift-docker CLI extension
+# swift-docker
 
 Test your swift package is Linux compatible using one command. `swift docker test`
 
-## Install swift-docker
+## Install instructions
 
-**via homebrew**
+<details>
+<Summary>
+Check docker is installed on your mac.
+</Summary>
+
+* Download the [Docker Mac App](https://www.docker.com/docker-mac). 
+* Alternatively install via homebrew `brew install docker`
+</details>
+
+**Install via homebrew**
 ```sh
 brew tap iainsmith/formulae
 brew install swift-docker
 ```
-
-**from source**
-```sh
+<details>
+<summary>
+or from source
+</summary>
+<pre>
 > swift build -c release -Xswiftc -static-stdlib
 # copy the binary to somewhere in your path. 
 > cp ./.build/x86_64-apple-macosx10.10/release/swift-docker ~/bin
-```
+</pre>
+</details>
 
 ## Usage
 
@@ -59,5 +71,5 @@ swift-docker is built on top of
 
 If you have suggestions for new commands, features or bug fixes. Please raise an issue or open a PR. 
 
-If you find this tool useful in your workflow let me know on twitter @_iains
+If you find this tool useful in your workflow let me know on twitter [@_iains]()
 
