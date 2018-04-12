@@ -1,4 +1,4 @@
-# Swift Docker CLI
+# swift-docker CLI extension
 
 Test your swift package from docker using one command. `swift docker test`
 
@@ -6,14 +6,14 @@ Test your swift package from docker using one command. `swift docker test`
 
 **via Homebrew**
 ```sh
-> brew tap iainsmith/casks
+> brew tap iainsmith/swift-docker
 > brew install swift-docker
 ```
 
 **from source**
 ```sh
 > swift build -c release -Xswiftc -static-stdlib
-# copy the binary to somewhere in your path.
+# copy the binary to somewhere in your path. 
 > cp ./.build/x86_64-apple-macosx10.10/release/swift-docker ~/bin
 ```
 
