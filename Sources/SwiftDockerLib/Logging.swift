@@ -20,8 +20,7 @@ func printError(_ string: String) {
 }
 
 // MARK: Handles
-
-class StandardHandle: Handle {
+class ColorfulHandle: Handle {
     let print: (String) -> Void
 
     init(print: @escaping (String) -> Void) {
@@ -34,5 +33,5 @@ class StandardHandle: Handle {
     }
 }
 
-let bodyHandle = StandardHandle(print: printBody)
-let errorHandle = StandardHandle(print: printError)
+let bodyHandle = ColorfulHandle(print: printBody)
+let errorHandle = ColorfulHandle(print: printError)
