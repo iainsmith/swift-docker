@@ -28,7 +28,7 @@ class ColorfulHandle: Handle {
     }
 
     func handle(data: Data) {
-        let output = String(data: data, encoding: .utf8)!
+        guard let output = String(data: data, encoding: .utf8)?.trimmingCharacters(in: .newlines), output.isEmpty == false else { return }
         print(output)
     }
 }
