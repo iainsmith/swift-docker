@@ -4,12 +4,6 @@ Test your swift package from docker using one command. `swift docker test`
 
 ## Install swift-docker
 
-**via Homebrew**
-```sh
-> brew tap iainsmith/swift-docker
-> brew install swift-docker
-```
-
 **from source**
 ```sh
 > swift build -c release -Xswiftc -static-stdlib
@@ -51,9 +45,9 @@ swift docker cleanup
 
 swift-docker is built on top of
 
-* ShellOut (from John Sundell)
-* Commander (from Kyle Fuller)
-* Rainbow (from onevcat)
+* [ShellOut](https://github.com/JohnSundell/ShellOut) (from John Sundell)
+* [Commander](https://github.com/kylef/commander) (from Kyle Fuller)
+* [Rainbow](https://github.com/onevcat/Rainbow) (from onevcat)
 
 ## Contributing
 
