@@ -1,8 +1,14 @@
 # swift-docker CLI extension
 
-Test your swift package from docker using one command. `swift docker test`
+Test your swift package is Linux compatible using one command. `swift docker test`
 
 ## Install swift-docker
+
+**via homebrew**
+```sh
+brew tap iainsmith/formulae
+brew install swift-docker
+```
 
 **from source**
 ```sh
