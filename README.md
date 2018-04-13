@@ -2,18 +2,9 @@
 
 Test your swift package is Linux compatible using one command. `swift docker test`
 
-## Install instructions
+<img src="https://s3.eu-west-2.amazonaws.com/iainpublicgifs/swift-docker-small.gif" width="500">
 
-<details>
-<Summary>
-Check docker is installed on your mac.
-</Summary>
-
-* Download the [Docker Mac App](https://www.docker.com/docker-mac). 
-* Alternatively install via homebrew `brew install docker`
-</details>
-
-**Install via homebrew**
+## Install swift-docker
 ```sh
 brew tap iainsmith/formulae
 brew install swift-docker
@@ -23,10 +14,21 @@ brew install swift-docker
 or from source
 </summary>
 <pre>
+> git clone https://github.com/iainsmith/swift-docker.git
+> cd swift-docker
 > swift build -c release -Xswiftc -static-stdlib
 # copy the binary to somewhere in your path. 
 > cp ./.build/x86_64-apple-macosx10.10/release/swift-docker ~/bin
 </pre>
+</details>
+</br>
+
+<details>
+<Summary>
+And install docker if you don't have it already
+</Summary>
+* Download the [Docker Mac App](https://www.docker.com/docker-mac). 
+* Alternatively install via homebrew `brew install docker`
 </details>
 
 ## Usage
