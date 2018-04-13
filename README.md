@@ -24,10 +24,11 @@ or from source
 </br>
 
 <details>
-<Summary>
+<summary>
 And install docker if you don't have it already
-</Summary>
-* Download the [Docker Mac App](https://www.docker.com/docker-mac). 
+</summary>
+
+* Download the [Docker Mac App](https://www.docker.com/docker-mac).
 * Alternatively install via homebrew `brew install docker`
 </details>
 
