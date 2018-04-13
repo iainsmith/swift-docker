@@ -67,7 +67,7 @@ swift-docker is built on top of
 
 * [ShellOut](https://github.com/JohnSundell/ShellOut) (from John Sundell)
 * [Commander](https://github.com/kylef/commander) (from Kyle Fuller)
-* [Rainbow](https://github.com/onevcat/Rainbow) (from onevcat)
+* [Rainbow](https://github.com/onevcat/Rainbow) (from 王巍 Wei Wang)
 
 ## Contributing
 
