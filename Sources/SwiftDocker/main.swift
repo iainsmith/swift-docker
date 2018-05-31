@@ -7,7 +7,7 @@ Group() {
                          default: "4.1",
                          flag: "s",
                          description: "The swift version to test against. e.g 4.0")
-    // Ideally we could repreesent this as an optional.
+    // Ideally we could represent this as an optional.
     let image = Option("image",
                        default: "",
                        flag: "i",
