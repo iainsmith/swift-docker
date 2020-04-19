@@ -1,6 +1,8 @@
-@testable import SwiftDockerLibTests
 import XCTest
 
-XCTMain([
-    testCase(DockerImageTests.allTests),
-])
+import SwiftDockerLibTests
+
+var tests = [XCTestCaseEntry]()
+tests += SwiftDockerLibTests.__allTests()
+
+XCTMain(tests)
