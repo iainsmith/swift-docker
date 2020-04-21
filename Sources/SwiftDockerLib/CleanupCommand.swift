@@ -3,49 +3,30 @@ import var TSCBasic.stdoutStream
 import class TSCBasic.TerminalController
 
 struct CleanupCommand: ParsableCommand {
-  @Flag(name: .shortAndLong)
-  var verbose: Bool
-
-  @Flag(name: .shortAndLong)
-  var force: Bool
-
   static let configuration = CommandConfiguration(
     commandName: "cleanup",
     abstract: "Remove temporary docker images.",
     discussion: """
     All swift-docker DOCKERFILEs are tagged with the following labels
 
-      LABEL \(Dockerfile.ActionLabel.label)=\(Dockerfile.ActionLabel.buildForTesting.rawValue)/\(Dockerfile.ActionLabel.build.rawValue)
-      LABEL \(Dockerfile.FolderLabel.label)=name-of-folder
+    LABEL \(Dockerfile.ActionLabel.label)=\(Dockerfile.ActionLabel.buildForTesting.rawValue)/\(Dockerfile.ActionLabel.build.rawValue)
+    LABEL \(Dockerfile.FolderLabel.label)=name-of-folder
 
     You can list all test images created using
 
-      docker images --filter "label=\(Dockerfile.filter(for: .buildForTesting))"
+    docker images --filter "label=\(Dockerfile.filter(for: .buildForTesting))"
     """
   )
 
-  func run() throws {
-    try CleanupCommandRunner(verbose: verbose, force: force).run()
-  }
-}
+  @Flag(name: .shortAndLong, help: "force remove outstanding images")
+  var force: Bool
 
-struct CleanupCommandRunner {
-  private let terminal: OutputDestination
-  private let shell: ShellProtocol.Type
-  private let verbose: Bool
-  private let force: Bool
+  @Flag(name: .shortAndLong, help: "Increase the level of output")
+  var verbose: Bool
 
-  init(
-    verbose: Bool,
-    force: Bool = false,
-    terminal: OutputDestination = TerminalController(stream: stdoutStream) ?? stdoutStream,
-    shell: ShellProtocol.Type = ShellRunner.self
-  ) {
-    self.verbose = verbose
-    self.force = force
-    self.terminal = terminal
-    self.shell = shell
-  }
+  // Internal for unit testing
+  var terminal: OutputDestination = TerminalController(stream: stdoutStream) ?? stdoutStream
+  var shell: ShellProtocol.Type = ShellRunner.self
 
   func run() throws {
     let fetchTestImagesCommand = DockerCommands.fetchImageIdentifiers(filter: Dockerfile.filter(for: .buildForTesting))
@@ -70,5 +51,10 @@ struct CleanupCommandRunner {
     } else {
       terminal.writeLine("Deleted \(imageIdentifiers.count) images")
     }
+  }
+
+  enum CodingKeys: String, CodingKey {
+    case force
+    case verbose
   }
 }
