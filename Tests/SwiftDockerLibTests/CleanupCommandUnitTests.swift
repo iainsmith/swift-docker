@@ -4,12 +4,25 @@ import Foundation
 import XCTest
 
 class CleanupCommandUnitTests: XCTestCase {
-  func testNoImagesToCleanup() throws {
-    let output = MockOutput()
-    let shell = MockShell.self
+  var cleanup: CleanupCommand!
+  var output: MockOutput!
+  var shell: MockShell.Type!
+
+  override func setUp() {
+    setupMocks()
+  }
+
+  func setupMocks(args: [String] = []) {
+    cleanup = try! CleanupCommand.parse(args)
+    output = MockOutput()
+    shell = MockShell.self
     shell.clear()
-    let runner = CleanupCommandRunner(verbose: true, terminal: output, shell: shell)
-    try runner.run()
+    cleanup.shell = shell
+    cleanup.terminal = output
+  }
+
+  func testNoImagesToCleanup() throws {
+    try cleanup.run()
     XCTAssertEqual(output.lines, [
       "No images to delete",
     ])
@@ -20,12 +33,9 @@ class CleanupCommandUnitTests: XCTestCase {
   }
 
   func testDeletingOneImage() throws {
-    let output = MockOutput()
-    let shell = MockShell.self
-    shell.clear()
-    let runner = CleanupCommandRunner(verbose: true, terminal: output, shell: shell)
+    setupMocks(args: ["--verbose"])
     shell.nextStandardOut = ["123456", "Deleted image 123456"]
-    try runner.run()
+    try cleanup.run()
     XCTAssertEqual(output.lines, [
       "Deleted image 123456",
     ])
@@ -37,12 +47,9 @@ class CleanupCommandUnitTests: XCTestCase {
   }
 
   func testForceDeletingOneImage() throws {
-    let output = MockOutput()
-    let shell = MockShell.self
-    shell.clear()
-    let runner = CleanupCommandRunner(verbose: true, force: true, terminal: output, shell: shell)
+    setupMocks(args: ["--verbose", "--force"])
     shell.nextStandardOut = ["123456", "Deleted image 123456"]
-    try runner.run()
+    try cleanup.run()
     XCTAssertEqual(output.lines, [
       "Deleted image 123456",
     ])
