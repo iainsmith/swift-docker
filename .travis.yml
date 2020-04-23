@@ -12,5 +12,5 @@ install:
   - if [ "$TRAVIS_OS_NAME" = "linux" ] || [ "$SWIFT_VERSION" = "5.1" ]; then eval "$(curl -sL https://swiftenv.fuller.li/en/latest/install.sh)"; fi;
 script:
   - set -o pipefail
-  - swift test --filter TravisClientTests.JSONTests
+  - swift test
 
