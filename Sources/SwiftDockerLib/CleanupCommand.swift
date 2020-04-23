@@ -9,8 +9,8 @@ struct CleanupCommand: ParsableCommand {
     discussion: """
     All swift-docker DOCKERFILEs are tagged with the following labels
 
-    LABEL \(Dockerfile.ActionLabel.label)=\(Dockerfile.ActionLabel.buildForTesting.rawValue)/\(Dockerfile.ActionLabel.build.rawValue)
-    LABEL \(Dockerfile.FolderLabel.label)=name-of-folder
+    LABEL \(ActionLabel.label)=\(ActionLabel.buildForTesting.rawValue)/\(ActionLabel.build.rawValue)
+    LABEL \(FolderLabel.label)=name-of-folder
 
     You can list all test images created using
 

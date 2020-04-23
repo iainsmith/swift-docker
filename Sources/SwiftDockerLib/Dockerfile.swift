@@ -1,15 +1,4 @@
 enum Dockerfile {
-  enum ActionLabel: String {
-    case buildForTesting = "test"
-    case build
-
-    static let label = "com.\(DockerHub.reservedDockerID).action"
-  }
-
-  enum FolderLabel {
-    static let label = "com.\(DockerHub.reservedDockerID).folder"
-  }
-
   static func makeMinimalDockerFile(
     image: String,
     directory directoryName: String,

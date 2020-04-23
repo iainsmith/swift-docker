@@ -24,43 +24,80 @@ public struct TestCommand: ParsableCommand {
   @OptionGroup()
   var options: CLIOptions
 
+  @Flag(help: "Copy the .build folder from your machine to the container")
+  var seedBuildFolder: Bool
+
+  @Flag(help: "Remove the docker .build folder")
+  var clean: Bool
+
+  @Option(parsing: .remaining, help: "swift test arguments such as --configuration/--parallel")
+  var args: [String]
+
+  private var outputDestinaton: OutputDestination = TerminalController(stream: stdoutStream) ?? stdoutStream
+  private var shell: ShellProtocol.Type = ShellRunner.self
+
   public func run() throws {
-    // Docker build context is relative to the directory docker is being called from.
-    // https://github.com/moby/moby/issues/4592
-    // For testing we use the swift-tools-support InMemoryFileSystem which fatalErrors
-    // on calls to changeCurrentWorkingDirectory in 0.1.1
-    try localFileSystem.changeCurrentWorkingDirectory(to: options.absolutePath)
-    try TestCommandRunner(options: options).run()
-  }
+    let projectLabel = FolderLabel.label(with: options.projectName)
+    ifVerbosePrint("Checking for existing docker volume")
 
-  public init() {}
+    let existingImages = try shell.run(
+      "docker volume ls --quiet --filter label=\(projectLabel)",
+      outputDestination: nil,
+      isVerbose: options.verbose
+    )
 
-  public init(options: CLIOptions) {
-    self.options = options
-  }
-}
+    let labels = """
+    --label \(projectLabel) \
+    --label \(ActionLabel.label(with: .buildForTesting))
+    """
 
-/// You must run this command from the options.absolutePath directory.
-struct TestCommandRunner {
-  private var options: CLIOptions
-  private let filesystem: FileSystem
-  private let outputDestinaton: OutputDestination
-  private let shell: ShellProtocol.Type
-  private let withTemporaryFileClosure: TemporaryFileFunction
-  private let computeGitSHA: () -> String
+    if clean {
+      try shell.run("docker volume rm \(options.dockerVolumeName)", outputDestination: nil, isVerbose: options.verbose)
+    }
 
-  func run() throws {
-    let uniqueHash = computeGitSHA() // TODO:
-    let tagName = "swift-docker/\(options.projectName.lowercased()):\(uniqueHash)"
+    let existingVolume = try existingImages.utf8OutputLines().contains(options.dockerVolumeName)
+    if !existingVolume || clean {
+      ifVerbosePrint("Creating new docker volume to cache .build folder")
+      let result = try shell.run(
+        """
+        docker volume create \
+        \(labels) \
+        \(options.dockerVolumeName)
+        """,
+        outputDestination: nil,
+        isVerbose: options.verbose
+      )
+      if case .terminated(code: 1) =  result.exitStatus {
+        throw DockerError("Unable to create image")
+      }
+    }
 
-    try BuildCommandRunner(
-      tag: tagName, options: options, fileSystem: filesystem,
-      output: outputDestinaton, shell: shell,
-      withTemporaryFile: withTemporaryFileClosure
-    ).run(action: .buildForTesting)
+    if seedBuildFolder {
+      ifVerbosePrint("Copying .build folder to volume: \(options.dockerVolumeName)")
+      let name = "swiftdockercli-seed"
+      let folder = "/.build"
+      try shell.runCleanExit("docker container create  --name \(name) --mount type=volume,source=\(options.dockerVolumeName),target=\(folder) \(options.dockerBaseImage.fullName)", outputDestination: nil, isVerbose: options.verbose)
+      try shell.runCleanExit("docker cp \(options.buildFolderPath.pathString)/. \(name):\(folder)", outputDestination: nil, isVerbose: options.verbose)
+      try shell.runCleanExit("docker rm \(name)", outputDestination: nil, isVerbose: options.verbose)
+    }
 
-    let testCommand = DockerCommands.dockerRun(tag: tagName, remove: true, command: "swift test")
     outputDestinaton.writeLine("-> swift test")
+
+    var swiftTest = "swift test"
+    if !args.isEmpty {
+      swiftTest += " \(args.joined(separator: " "))"
+    }
+
+    let testCommand = """
+    docker run --rm \
+    --mount type=bind,source=\(options.absolutePath.pathString),target=/package \
+    --mount type=volume,source=\(options.dockerVolumeName),target=/package/.build \
+    --workdir /package \
+    \(labels) \
+    \(options.dockerBaseImage.fullName) \
+    \(swiftTest)
+    """
+
     try shell.runWithStreamingOutput(
       testCommand,
       controller: outputDestinaton,
@@ -69,40 +106,35 @@ struct TestCommandRunner {
     )
   }
 
-  init(options: CLIOptions) {
-    self.init(
-      options: options,
-      fileSystem: localFileSystem,
-      output: TerminalController(stream: stdoutStream) ?? stdoutStream,
-      shell: ShellRunner.self
-    )
-  }
+  public init() {}
+
 
   init(
     options: CLIOptions,
-    fileSystem: FileSystem = localFileSystem,
+    seedBuildFolder: Bool = false,
+    clean: Bool = false,
+    args: [String] = [],
     output: OutputDestination = TerminalController(stream: stdoutStream) ?? stdoutStream,
-    shell: ShellProtocol.Type = ShellRunner.self,
-    withTemporaryFile: TemporaryFileFunction? = nil,
-    computeGitSHA: (() -> String)? = nil
+    shell: ShellProtocol.Type = ShellRunner.self
   ) {
     self.options = options
-    filesystem = fileSystem
+    self.clean = clean
+    self.seedBuildFolder = false
     outputDestinaton = output
     self.shell = shell
-    withTemporaryFileClosure = withTemporaryFile ?? { dir, prefix, suffix, delete, body in
-      try TSCBasic.withTemporaryFile(dir: dir, prefix: prefix, suffix: suffix, deleteOnClose: delete) { tempfile in try body(tempfile.path) }
-    }
-    self.computeGitSHA = computeGitSHA ?? { String(NSUUID().uuidString.prefix(6)) }
+    self.args = args
   }
 
-  func withTemporaryFile(
-    dir: AbsolutePath? = nil,
-    prefix: String = "TemporaryFile",
-    suffix: String = "",
-    deleteOnClose: Bool = true, _
-    body: (AbsolutePath) throws -> Void
-  ) throws {
-    try withTemporaryFileClosure(dir, prefix, suffix, deleteOnClose, body)
+  enum CodingKeys: String, CodingKey {
+    case options
+    case seedBuildFolder
+    case clean
+    case args
+  }
+
+  func ifVerbosePrint(_ string: String) {
+    if options.verbose {
+      outputDestinaton.writeLine(string)
+    }
   }
 }

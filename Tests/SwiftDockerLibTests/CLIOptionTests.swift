@@ -14,17 +14,17 @@ extension CLIOptions {
 class CLIOptionTests: XCTestCase {
   func testDefaultDockerTag() throws {
     let options = try CLIOptions.parseWithoutValidation()
-    XCTAssertEqual(options.baseImage, DockerTag.officialSwiftVersion("latest"))
+    XCTAssertEqual(options.dockerBaseImage, DockerTag.officialSwiftVersion("latest"))
   }
 
   func testCustomSwiftVersion() throws {
     let options = try CLIOptions.parseWithoutValidation(["--swift", "5.1"])
-    XCTAssertEqual(options.baseImage, DockerTag.officialSwiftVersion("5.1"))
+    XCTAssertEqual(options.dockerBaseImage, DockerTag.officialSwiftVersion("5.1"))
   }
 
   func testCustomImage() throws {
     let options = try CLIOptions.parseWithoutValidation(["--image", "vapor/ubuntu:latest"])
-    XCTAssertEqual(options.baseImage, DockerTag.image("vapor/ubuntu:latest"))
+    XCTAssertEqual(options.dockerBaseImage, DockerTag.image("vapor/ubuntu:latest"))
   }
 
   func testCustomAbsolutePath() throws {

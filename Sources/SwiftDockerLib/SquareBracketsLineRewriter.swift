@@ -6,7 +6,7 @@ enum SquareBracketsLineRewriter: OutputRewriter {
     .stream(stdout: { stdBytes in
       var needsEndLine = false
       guard let string = String(bytes: stdBytes, encoding: .utf8) else { return }
-      string.split { $0.isNewline }.forEach { substring in
+      string.eachLine { substring in
         let isInlineTotal = substring.hasPrefix("[")
         if isInlineTotal {
           controller.clearLine()
