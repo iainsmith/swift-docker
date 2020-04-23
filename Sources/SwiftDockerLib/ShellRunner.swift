@@ -14,6 +14,9 @@ protocol ShellProtocol {
 
   @discardableResult
   static func run(_ cmd: String, outputDestination: OutputDestination?, isVerbose: Bool) throws -> ProcessResult
+
+  @discardableResult
+  static func runCleanExit(_ cmd: String, outputDestination: OutputDestination?, isVerbose: Bool) throws -> ProcessResult
 }
 
 enum ShellRunner: ShellProtocol {
@@ -65,6 +68,16 @@ enum ShellRunner: ShellProtocol {
       outputDestination?.writeLine(output)
     }
 
+    return result
+  }
+}
+
+extension ShellProtocol {
+  static func runCleanExit(_ cmd: String, outputDestination: OutputDestination?, isVerbose: Bool) throws -> ProcessResult {
+    let result = try run(cmd, outputDestination: outputDestination, isVerbose: isVerbose)
+    if case .terminated(code: 1) = result.exitStatus {
+      throw DockerError("\(cmd) failed")
+    }
     return result
   }
 }

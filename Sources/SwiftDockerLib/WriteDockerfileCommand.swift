@@ -30,7 +30,7 @@ struct WriteDockerfileCommandRunner {
 
   func run() throws {
     let dockerfileBody = Dockerfile.makeMinimalDockerFile(
-      image: options.baseImage.fullName,
+      image: options.dockerBaseImage.fullName,
       directory: options.projectName,
       action: .build
     )

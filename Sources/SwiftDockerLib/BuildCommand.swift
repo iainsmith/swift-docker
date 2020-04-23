@@ -71,10 +71,10 @@ struct BuildCommandRunner {
     try withTemporaryFileClosure(dir, prefix, suffix, deleteOnClose, body)
   }
 
-  func run(action: Dockerfile.ActionLabel) throws {
+  func run(action: ActionLabel) throws {
     _ = try withTemporaryFile(prefix: "Dockerfile") { (file) -> Void in
       let dockerfileBody = Dockerfile.makeMinimalDockerFile(
-        image: options.baseImage.fullName,
+        image: options.dockerBaseImage.fullName,
         directory: options.projectName,
         action: action
       )

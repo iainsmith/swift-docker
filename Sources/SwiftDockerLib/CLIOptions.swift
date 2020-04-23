@@ -22,7 +22,7 @@ public struct CLIOptions: ParsableArguments {
     try! AbsolutePath(validating: url.path)
   }
 
-  var baseImage: DockerTag {
+  var dockerBaseImage: DockerTag {
     DockerTag(version: swift, image: image)!
   }
 
@@ -30,8 +30,16 @@ public struct CLIOptions: ParsableArguments {
     absolutePath.basename
   }
 
+  var dockerVolumeName: String {
+    "swiftdockercli-\(projectName)"
+  }
+
   var defaultDockerfilePath: AbsolutePath {
     absolutePath.appending(component: "Dockerfile")
+  }
+
+  var buildFolderPath: AbsolutePath {
+    absolutePath.appending(component: ".build")
   }
 
   public init() {}

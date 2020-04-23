@@ -1,4 +1,5 @@
 import ArgumentParser
+import var TSCBasic.localFileSystem
 
 public struct SwiftDockerCLI: ParsableCommand {
   public static var configuration: CommandConfiguration = CommandConfiguration(
