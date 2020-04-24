@@ -18,7 +18,6 @@ git clone https://github.com/jpsim/Yams.git # Clone an example package
 cd Yams && swift test # Run the tests on your machine
 swift docker test # Run the tests in a container
 swift docker test --swift 5.1 # Check if the tests pass on swift 5.1
-swift docker cleanup # Delete the docker image you just created
 swift docker write-dockerfile # Write a ./Dockerfile to the repo
 ```
 
@@ -26,11 +25,11 @@ swift docker write-dockerfile # Write a ./Dockerfile to the repo
 
 * [x] Test swift packages in one command `swift docker test`
 * [x] Use custom images - `swift docker test --image vapor/swift:latest`
-* [x] Build a docker image for your project - `swift docker build`
 * [x] Quickly free up space - `swift docker cleanup`
 * [x] Create a dockerfile for your project
-* [ ] Prevent duplicate builds
-* [ ] Automatically create a .dockerignore file
+* [x] Cached builds using docker volumes
+* [x] Use a mix of docker volumes & bind mounts for fast, small builds.
+* [ ] Create a .dockerignore file to avoid adding .git directory to the image
 * [ ] Support multistage slim builds
 * [ ] Log output to a file
 * [ ] cmake build for running on Windows
@@ -77,7 +76,6 @@ examples:
 swift docker test #test the package in the current directory
 swift docker test --swift 5.1 # test your package against swift:5.1
 swift docker test --path ~/code/my-package # test a package in a directory
-swift docker build --swift 5.2.2 --tag username/package:1.0
 swift docker write-dockerfile --swift 5.2.2-slim
 swift docker cleanup # Remove all images created with swift docker test
 
@@ -88,7 +86,6 @@ OPTIONS:
 
 SUBCOMMANDS:
 test                    Test your swift package in a docker container.
-build                   Build you swift package in a docker container.
 cleanup                 Remove temporary docker images.
 write-dockerfile        Write a dockerfile to disk.
 ```
@@ -102,10 +99,7 @@ LABEL com.swiftdockercli.action="test/build"
 LABEL com.swiftdockercli.folder="your-project-name"
 ```
 
-Running `docker ps -a --filter label=com.swiftdockercli.action=test` will list all containers created by swift-docker test
-Running `docker images --filter label=com.swiftdockercli.action=test` will list all images created by swift-docker test
-
-This is how `swift docker cleanup` looks up images to delete.
+Running `docker volume ls --filter label=com.swiftdockercli.action=test` will list volumes created by swift-docker test.
 
 ## Contributing
 
