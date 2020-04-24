@@ -7,44 +7,44 @@ import XCTest
 extension CLIOptions {
   static func parseWithoutValidation(_ args: [String]? = nil) throws -> CLIOptions {
     let fullArgs = args ?? []
-    return try parse(fullArgs + ["--skip-validation"])
+    return try parse(fullArgs)
   }
 }
 
 class CLIOptionTests: XCTestCase {
   func testDefaultDockerTag() throws {
-    let options = try CLIOptions.parseWithoutValidation()
+    let options = CLIOptions(path: ".", verbose: true)
     XCTAssertEqual(options.dockerBaseImage, DockerTag.officialSwiftVersion("latest"))
   }
 
   func testCustomSwiftVersion() throws {
-    let options = try CLIOptions.parseWithoutValidation(["--swift", "5.1"])
+    let options = CLIOptions(swift: "5.1", verbose: true)
     XCTAssertEqual(options.dockerBaseImage, DockerTag.officialSwiftVersion("5.1"))
   }
 
   func testCustomImage() throws {
-    let options = try CLIOptions.parseWithoutValidation(["--image", "vapor/ubuntu:latest"])
+    let options = CLIOptions(image: "vapor/ubuntu:latest", verbose: true)
     XCTAssertEqual(options.dockerBaseImage, DockerTag.image("vapor/ubuntu:latest"))
   }
 
   func testCustomAbsolutePath() throws {
-    let options = try CLIOptions.parseWithoutValidation(["--path", "/tmp/hello/world"])
+    let options = CLIOptions(path: "/tmp/hello/world", verbose: true)
     XCTAssertEqual(options.absolutePath, AbsolutePath("/tmp/hello/world"))
   }
 
   func testCustomTildaPath() throws {
-    let options = try CLIOptions.parseWithoutValidation(["--path", "~/hello/world"])
+    let options = CLIOptions(path: "~/hello/world", verbose: true)
     XCTAssertEqual(options.absolutePath, AbsolutePath("hello/world", relativeTo: localFileSystem.homeDirectory))
   }
 
   func testRelativePath() throws {
-    let options = try CLIOptions.parseWithoutValidation(["--path", "../../hello/world"])
+    let options = CLIOptions(path: "../../hello/world", verbose: true)
     let currentDir = localFileSystem.currentWorkingDirectory!
     XCTAssertEqual(options.absolutePath, AbsolutePath("hello/world", relativeTo: currentDir.parentDirectory.parentDirectory))
   }
 
   func testProjectName() throws {
-    let options = try CLIOptions.parseWithoutValidation(["--path", "../../hello/world"])
+    let options = CLIOptions(path: "../../hello/world", verbose: true)
     XCTAssertEqual(options.projectName, "world")
   }
 

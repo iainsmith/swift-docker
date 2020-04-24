@@ -15,9 +15,6 @@ public struct CLIOptions: ParsableArguments {
   @Flag(name: .shortAndLong, help: "Increase the level of output")
   var verbose: Bool
 
-  @Flag(name: .customLong("skip-validation"), help: .hidden)
-  var skipValidation: Bool
-
   var absolutePath: AbsolutePath {
     try! AbsolutePath(validating: url.path)
   }
@@ -44,9 +41,15 @@ public struct CLIOptions: ParsableArguments {
 
   public init() {}
 
-  public func validate() throws {
-    if skipValidation { return }
+  public init(swift: String = "latest", image: String? = nil, path: String = ".", verbose: Bool) {
+    self.swift = swift
+    self.image = image
+    let expanded = NSString(string: path).expandingTildeInPath
+    self.url = URL(fileURLWithPath: expanded)
+    self.verbose = verbose
+  }
 
+  public func validate() throws {
     if swift != "latest", image != nil {
       throw ValidationError("--swift and --image are exclusive options")
     }
