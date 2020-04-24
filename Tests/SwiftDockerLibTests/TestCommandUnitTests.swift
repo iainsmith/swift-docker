@@ -5,7 +5,7 @@ import XCTest
 
 class BuiildCommandUnitTests: XCTestCase {
   func testSuccessfullBuild() throws {
-    let options = try CLIOptions.parse(["--swift", "5.2", "--path", "/hello/my-Project", "-v", "--skip-validation"])
+    let options = CLIOptions(swift: "5.2", path: "/hello/my-Project", verbose: true)
     let fileSystem = InMemoryFileSystem()
     try fileSystem.createDirectory(AbsolutePath("/tmp"))
     let output = MockOutput()

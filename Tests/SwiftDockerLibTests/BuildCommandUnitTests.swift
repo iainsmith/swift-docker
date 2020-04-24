@@ -5,7 +5,7 @@ import XCTest
 
 class TestCommandUnitTests: XCTestCase {
   func testSuccessfullBuildAndTest() throws {
-    let options = try CLIOptions.parse(["--swift", "5.2", "--path", "/hello/my-project", "-v", "--skip-validation"])
+    let options = CLIOptions(swift: "5.2", path: "/hello/my-project", verbose: true)
     let output = MockOutput()
     let shell = MockShell.self
     shell.clear()
