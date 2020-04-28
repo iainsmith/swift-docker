@@ -17,7 +17,7 @@ public struct SwiftDockerCLI: ParsableCommand {
       swift docker cleanup # Remove all images created with swift docker test
     """,
     shouldDisplay: true,
-    subcommands: [TestCommand.self, BuildCommand.self, CleanupCommand.self, WriteDockerfileCommand.self]
+    subcommands: [BuildCommand.self, TestCommand.self, RunCommand.self, BuildImageCommand.self, CleanupCommand.self, WriteDockerfileCommand.self]
   )
 
   public init() {}

@@ -3,7 +3,7 @@ import Foundation
 @testable import TSCBasic
 import XCTest
 
-class BuiildCommandUnitTests: XCTestCase {
+class BuiildImageCommandUnitTests: XCTestCase {
   func testSuccessfullBuild() throws {
     let options = CLIOptions(swift: "5.2", path: "/hello/my-Project", verbose: true)
     let fileSystem = InMemoryFileSystem()
