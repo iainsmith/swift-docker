@@ -18,6 +18,12 @@ public struct CLIOptions: ParsableArguments {
   @Flag(help: "Remove the docker .build folder")
   var clean: Bool
 
+  @Flag(help: "Copy the .build folder from your machine to the container")
+  var seedBuildFolder: Bool
+
+  @Option(parsing: .remaining, help: "swift test arguments such as --configuration/--parallel")
+  var args: [String]
+
   var absolutePath: AbsolutePath {
     try! AbsolutePath(validating: url.path)
   }
@@ -44,13 +50,16 @@ public struct CLIOptions: ParsableArguments {
 
   public init() {}
 
-  public init(swift: String = "latest", image: String? = nil, path: String = ".", verbose: Bool, clean: Bool = false) {
+  public init(swift: String = "latest", image: String? = nil, path: String = ".", verbose: Bool,
+              clean: Bool = false, args: [String] = [], seedBuildFolder: Bool = false) {
     self.swift = swift
     self.image = image
     let expanded = NSString(string: path).expandingTildeInPath
     self.url = URL(fileURLWithPath: expanded)
     self.verbose = verbose
     self.clean = clean
+    self.args = args
+    self.seedBuildFolder = seedBuildFolder
   }
 
   public func validate() throws {

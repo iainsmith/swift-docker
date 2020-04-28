@@ -2,15 +2,14 @@ import ArgumentParser
 import Foundation
 import TSCBasic
 
-struct BuildCommand: ParsableCommand, DockerCommand {
+struct RunCommand: ParsableCommand, DockerCommand {
   static let configuration = CommandConfiguration(
-    commandName: "build",
-    abstract: "Build your swift package in a docker container.",
+    commandName: "run",
+    abstract: "Run your swift package in a docker container.",
     discussion: """
     Examples:
 
-      swift docker build --swift 5.2.2
-      swift docker build --image vapor/ubuntu:latst
+      swift docker run --swift 5.2.2 --args my-binary arg1 arg2
 
     Docker Labels:
 
@@ -42,8 +41,8 @@ struct BuildCommand: ParsableCommand, DockerCommand {
     try removeVolumeIfNeeded()
     try createVolumeIfNeeded(labels: labels)
 
-    output.writeLine("-> swift build - \(options.dockerBaseImage.fullName)")
-    var cmd = "swift build"
+    output.writeLine("-> swift run - \(options.dockerBaseImage.fullName)")
+    var cmd = "swift run"
     if !options.args.isEmpty { cmd += " \(options.args.joined(separator: " "))" }
     let command = makeDockerRunCommand(cmd: cmd, labels: labels)
     try shell.runWithStreamingOutput(

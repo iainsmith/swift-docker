@@ -26,6 +26,7 @@ swift docker write-dockerfile # Write a ./Dockerfile to the repo
 * [x] Test swift packages in one command `swift docker test`
 * [x] Use custom images - `swift docker test --image vapor/swift:latest`
 * [x] Quickly free up space - `swift docker cleanup`
+* [x] `swift docker build/test/run` mirror `swift build/test/run`
 * [x] Create a dockerfile for your project
 * [x] Cached builds using docker volumes
 * [x] Use a mix of docker volumes & bind mounts for fast, small builds.

@@ -20,6 +20,7 @@ extension DockerCommand {
   }
 
   func createVolumeIfNeeded(labels: String) throws {
+    ifVerbosePrint("Checking for existing docker volume")
     let projectLabel = FolderLabel.label(with: options.projectName)
 
     let existingImages = try shell.run(
@@ -44,6 +45,8 @@ extension DockerCommand {
         throw DockerError("Unable to create image")
       }
     }
+
+    if options.seedBuildFolder { try copyBuildFolderToVolume() }
   }
 
   func copyBuildFolderToVolume() throws {

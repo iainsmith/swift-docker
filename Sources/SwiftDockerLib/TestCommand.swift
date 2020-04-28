@@ -24,26 +24,18 @@ public struct TestCommand: ParsableCommand, DockerCommand {
   @OptionGroup()
   var options: CLIOptions
 
-  @Flag(help: "Copy the .build folder from your machine to the container")
-  var seedBuildFolder: Bool
-
-  @Option(parsing: .remaining, help: "swift test arguments such as --configuration/--parallel")
-  var args: [String]
-
   private(set) var output: OutputDestination = TerminalController(stream: stdoutStream) ?? stdoutStream
   private(set) var shell: ShellProtocol.Type = ShellRunner.self
 
   public func run() throws {
     let labels = makeLabels(action: .buildForTesting)
-    ifVerbosePrint("Checking for existing docker volume")
     try removeVolumeIfNeeded()
     try createVolumeIfNeeded(labels: labels)
-    if seedBuildFolder { try copyBuildFolderToVolume() }
 
     output.writeLine("-> swift test - \(options.dockerBaseImage.fullName)")
-    var swiftTest = "swift test"
-    if !args.isEmpty { swiftTest += " \(args.joined(separator: " "))" }
-    let testCommand = makeDockerRunCommand(cmd: "swift test", labels: labels)
+    var cmd = "swift test"
+    if !options.args.isEmpty { cmd += " \(options.args.joined(separator: " "))" }
+    let testCommand = makeDockerRunCommand(cmd: cmd, labels: labels)
     try shell.runWithStreamingOutput(
       testCommand,
       controller: output,
@@ -54,20 +46,17 @@ public struct TestCommand: ParsableCommand, DockerCommand {
 
   public init() {}
 
-  init(options: CLIOptions, seedBuildFolder: Bool = false, clean: Bool = false, args: [String] = [],
+  init(
+    options: CLIOptions,
     output: OutputDestination = TerminalController(stream: stdoutStream) ?? stdoutStream,
     shell: ShellProtocol.Type = ShellRunner.self
   ) {
     self.options = options
-    self.seedBuildFolder = false
     self.output = output
     self.shell = shell
-    self.args = args
   }
 
   enum CodingKeys: String, CodingKey {
     case options
-    case seedBuildFolder
-    case args
   }
 }

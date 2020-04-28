@@ -5,6 +5,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- `swift docker run` - mirrors swift run command
+- `swift docker build` - mirrors swift build
+- `swift docker build-image` builds a docker image of your package
+- Extract docker command logic to `DockerCommand` protocol for code reuse across commands.
 
 ## [0.3.0] - 2020-04-24
 
