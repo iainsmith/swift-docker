@@ -29,7 +29,7 @@ struct CleanupCommand: ParsableCommand {
   var shell: ShellProtocol.Type = ShellRunner.self
 
   func run() throws {
-    let fetchTestImagesCommand = DockerCommands.fetchImageIdentifiers(filter: Dockerfile.filter(for: .buildForTesting))
+    let fetchTestImagesCommand = DockerCommandsLegacy.fetchImageIdentifiers(filter: Dockerfile.filter(for: .buildForTesting))
     let fetchImageResult = try shell.run(fetchTestImagesCommand, outputDestination: nil, isVerbose: verbose)
     if fetchImageResult.exitStatus != .terminated(code: 0) {
       throw DockerError.failedToRunCommand(fetchTestImagesCommand)
@@ -41,7 +41,7 @@ struct CleanupCommand: ParsableCommand {
       return
     }
 
-    let deleteCommand = DockerCommands.deleteImages(identifiers: imageIdentifiers.joined(separator: " "), force: force)
+    let deleteCommand = DockerCommandsLegacy.deleteImages(identifiers: imageIdentifiers.joined(separator: " "), force: force)
     let deleteResult = try shell.run(deleteCommand, outputDestination: nil, isVerbose: verbose)
     if deleteResult.exitStatus != .terminated(code: 0) {
       terminal.writeLine(try deleteResult.utf8stderrOutput())

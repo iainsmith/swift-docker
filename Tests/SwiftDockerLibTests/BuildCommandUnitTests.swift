@@ -3,34 +3,43 @@ import Foundation
 @testable import TSCBasic
 import XCTest
 
-class TestCommandUnitTests: XCTestCase {
-  func testSuccessfullBuildAndTest() throws {
-    let options = CLIOptions(swift: "5.2", path: "/hello/my-project", verbose: true)
+class BuiildCommandUnitTests: XCTestCase {
+  func testSuccessfullBuild() throws {
+    let options = CLIOptions(swift: "5.2", path: "/hello/my-Project", verbose: true)
+    let fileSystem = InMemoryFileSystem()
+    try fileSystem.createDirectory(AbsolutePath("/tmp"))
     let output = MockOutput()
     let shell = MockShell.self
     shell.clear()
-    let runner = TestCommand(
+    let runner = BuildCommandRunner(
+      tag: "iain/DocKer:my-tag",
       options: options,
+      fileSystem: fileSystem,
       output: output,
-      shell: shell
+      shell: shell,
+      withTemporaryFile: mockWithTemporaryFile
     )
 
-    try runner.run()
+    try runner.run(action: .build)
     XCTAssertEqual(output.lines, [
-      "Checking for existing docker volume",
-      "Creating new docker volume to cache .build folder",
-      "-> swift test",
+      "Created temporary Dockerfile at /tmp/Dockerfile",
+      "-> docker build",
     ])
 
     XCTAssertEqual(shell.commands, [
-      "docker volume ls --quiet --filter label=com.swiftdockercli.folder=my-project",
-      "docker volume create --label com.swiftdockercli.folder=my-project --label com.swiftdockercli.action=test swiftdockercli-my-project",
-      """
-      docker run --rm --mount type=bind,source=/hello/my-project,target=/package \
-      --mount type=volume,source=swiftdockercli-my-project,target=/package/.build --workdir /package \
-      --label com.swiftdockercli.folder=my-project --label com.swiftdockercli.action=test swift:5.2 swift test
-      """
-      ]
-    )
+      "docker build -t iain/docker:my-tag --file /tmp/Dockerfile .",
+    ])
+
+    let dockerString = try fileSystem.readFileContents(AbsolutePath("/tmp/Dockerfile")).cString
+    XCTAssertEqual(try fileSystem.getDirectoryContents(AbsolutePath("/tmp")), ["Dockerfile"])
+    XCTAssertEqual(dockerString, """
+    FROM swift:5.2
+    LABEL com.swiftdockercli.action="build"
+    LABEL com.swiftdockercli.folder="my-project"
+    COPY . /my-project
+    WORKDIR /my-project
+    RUN swift build
+
+    """)
   }
 }
