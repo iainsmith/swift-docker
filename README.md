@@ -1,6 +1,6 @@
 # swift-docker
 
-A command line tool for building & testing your swift package in a docker container.
+A command line tool for building, testing & running your swift package in a docker container.
 
 <img src="https://s3.eu-west-2.amazonaws.com/iainpublicgifs/swift-docker-small.gif" width="500">
 
@@ -8,6 +8,7 @@ A command line tool for building & testing your swift package in a docker contai
 * [Features](#Features)
 * [Installation](#Install-swift-docker)
 * [Usage](#Usage)
+* [Vapor](#Vapor)
 * [Docker Labels](#docker-labels)
 
 ## Quick start for macOS
@@ -25,12 +26,13 @@ swift docker write-dockerfile # Write a ./Dockerfile to the repo
 
 * [x] Test swift packages in one command `swift docker test`
 * [x] Use custom images - `swift docker test --image vapor/swift:latest`
-* [x] Quickly free up space - `swift docker cleanup`
-* [x] `swift docker build/test/run` mirror `swift build/test/run`
-* [x] Create a dockerfile for your project
+* [x] `swift docker build/test/run` commands mirror `swift build/test/run`
+* [x] Run your vapor application in a container - `swift docker vapor`
 * [x] Cached builds using docker volumes
 * [x] Use a mix of docker volumes & bind mounts for fast, small builds.
 * [x] Uses the swift docker image that matches the Package.swift manifest.
+* [x] Quickly free up space - `swift docker cleanup`
+* [x] Create a dockerfile for your project
 * [ ] Create a .dockerignore file to avoid adding .git directory to the image
 * [ ] Support multistage slim builds
 * [ ] Log output to a file
@@ -91,6 +93,15 @@ test                    Test your swift package in a docker container.
 cleanup                 Remove temporary docker images.
 write-dockerfile        Write a dockerfile to disk.
 ```
+
+## Vapor
+
+Run `swift docker vapor` to run your vapor application in a docker container. This is significantly faster than workflows that require you
+to build a docker image as we bind the local directory into the container, and cache the build folder.
+
+* You can pass custom arguments to your application by running `swift docker vapor -- arg1 --flag1`.
+* Currently the environment is set to production & the port is set to 8080.
+* The default docker image is `swift:latest`. You can use a custom image with `swift docker vapor --image vapor/swift:latest`
 
 ## Docker labels
 

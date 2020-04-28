@@ -44,7 +44,7 @@ enum VerboseOutputRedirection: OutputRewriter {
 }
 
 extension String {
-  func eachLine(body: (String) throws -> Void) rethrows -> Void {
+  func eachLine(body: (String) throws -> Void) rethrows {
     try split { $0.isNewline }.forEach { try body(String($0)) }
   }
 }

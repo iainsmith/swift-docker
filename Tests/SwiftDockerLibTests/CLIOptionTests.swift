@@ -63,4 +63,26 @@ class CLIOptionTests: XCTestCase {
       XCTAssertThrowsError(try CLIOptions.parse(["--path", dir.pathString]))
     }
   }
+
+  func testSwiftAndImageAreExlusive() throws {
+    try XCTAssertOptionsValidation("--swift 5.1") { options in
+      XCTAssertEqual(options.dockerBaseImage.fullName, "swift:5.1")
+    }
+
+    try XCTAssertOptionsValidation("--image vapor/swift:latest") { options in
+      XCTAssertEqual(options.dockerBaseImage.fullName, "vapor/swift:latest")
+    }
+
+    XCTAssertThrowsError(try XCTAssertOptionsValidation("--swift 5.1 --image vapor/swift:latest"))
+  }
+}
+
+
+func XCTAssertOptionsValidation(_ args: String, _ message: @autoclosure () -> String = "", file: StaticString = #file, line: UInt = #line, _ block: ((CLIOptions) throws -> Void)? = nil) throws {
+  try withTemporaryDirectory { dir -> Void in
+    try localFileSystem.writeFileContents(dir.appending(component: "Package.swift"), bytes: ByteString())
+    let args: [String] = ["--path", dir.pathString] + args.split(whereSeparator: { $0.isWhitespace} ).map(String.init)
+    let options = try CLIOptions.parse(args)
+    try block?(options)
+  }
 }

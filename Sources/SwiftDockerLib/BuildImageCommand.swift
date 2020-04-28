@@ -5,7 +5,7 @@ import TSCBasic
 struct BuildImageCommand: ParsableCommand {
   static let configuration = CommandConfiguration(
     commandName: "build-image",
-    abstract: "Build a docker image for your swift package in a docker container.",
+    abstract: "Build a docker image for your swift package.",
     discussion: """
     Examples:
 

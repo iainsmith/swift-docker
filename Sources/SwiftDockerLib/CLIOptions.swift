@@ -72,7 +72,7 @@ public struct CLIOptions: ParsableArguments {
   }
 
   public func validate() throws {
-    if swift != "latest", image != nil {
+    if swift != nil, image != nil {
       throw ValidationError("--swift and --image are exclusive options")
     }
 
