@@ -98,16 +98,29 @@ public struct TestCommand: ParsableCommand {
     \(swiftTest)
     """
 
-    try shell.runWithStreamingOutput(
+    let result = try shell.runWithStreamingOutput(
       testCommand,
       controller: outputDestinaton,
       redirection: SquareBracketsLineRewriter.self,
       isVerbose: options.verbose
     )
+
+    switch result.exitStatus {
+    case .terminated(code: 0), .signalled:
+      break
+    case let .terminated(exitCode):
+      // The compiler likely crashed mid build/test command so leave an empty line
+      outputDestinaton.writeLine("""
+
+      \(swiftTest) returned a non zero exit code \(exitCode). To diagnose the cause
+      you may want to re-run the command passing verbose to SwiftPM. e.g
+      swift docker test --clean --args --verbose
+      """)
+      throw DockerError("Exit code \(exitCode)")
+    }
   }
 
   public init() {}
-
 
   init(
     options: CLIOptions,
