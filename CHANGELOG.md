@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+### Changed
+- `swift docker test` defaults to using the swift-tools-version specified in Package.swift
+
 ### Added
 - `swift docker run` - mirrors swift run command
 - `swift docker build` - mirrors swift build

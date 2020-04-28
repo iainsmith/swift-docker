@@ -30,6 +30,7 @@ swift docker write-dockerfile # Write a ./Dockerfile to the repo
 * [x] Create a dockerfile for your project
 * [x] Cached builds using docker volumes
 * [x] Use a mix of docker volumes & bind mounts for fast, small builds.
+* [x] Uses the swift docker image that matches the Package.swift manifest.
 * [ ] Create a .dockerignore file to avoid adding .git directory to the image
 * [ ] Support multistage slim builds
 * [ ] Log output to a file

@@ -3,8 +3,8 @@ import Foundation
 import TSCBasic
 
 public struct CLIOptions: ParsableArguments {
-  @Option(name: .shortAndLong, default: "latest", help: "swift tag found at https://hub.docker.com/_/swift \n  e.g latest, 5.2, 5.2.2-slim")
-  var swift: String
+  @Option(name: .shortAndLong, help: "swift tag found at https://hub.docker.com/_/swift \n  e.g latest, 5.2, 5.2.2-slim")
+  var swift: String?
 
   @Option(name: .shortAndLong, help: "a custom docker image to use as the base image\n  e.g vapor/ubuntu:bionic")
   var image: String?
@@ -29,7 +29,16 @@ public struct CLIOptions: ParsableArguments {
   }
 
   var dockerBaseImage: DockerTag {
-    DockerTag(version: swift, image: image)!
+    if swift != nil || image != nil {
+      return DockerTag(version: swift, image: image)!
+    }
+
+    do {
+      let version = try PackageMetadata.toolsVersion(for: absolutePath, isVerbose: verbose)
+      return DockerTag(version: version, image: nil)!
+    } catch {
+      return DockerTag(version: "latest", image: nil)!
+    }
   }
 
   var projectName: String {
