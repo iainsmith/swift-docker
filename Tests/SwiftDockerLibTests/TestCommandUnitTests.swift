@@ -29,8 +29,7 @@ class TestCommandUnitTests: XCTestCase {
       docker run --rm --mount type=bind,source=/hello/my-project,target=/package \
       --mount type=volume,source=swiftdockercli-my-project,target=/package/.build --workdir /package \
       --label com.swiftdockercli.folder=my-project --label com.swiftdockercli.action=test swift:5.2 swift test
-      """
-      ]
-    )
+      """,
+    ])
   }
 }

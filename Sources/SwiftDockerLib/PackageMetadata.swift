@@ -1,5 +1,5 @@
-import TSCBasic
 import Foundation
+import TSCBasic
 
 enum PackageMetadata {
   static func toolsVersion(for path: AbsolutePath, isVerbose: Bool) throws -> String {

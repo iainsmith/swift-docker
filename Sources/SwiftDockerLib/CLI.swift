@@ -7,17 +7,17 @@ public struct SwiftDockerCLI: ParsableCommand {
     abstract: "A simple workflow for building & testing swift packages with docker",
     discussion: """
     Run swift docker <subcommand> --help for subcommand details
-    Reference - Offiical docker images: https://hub.docker.com/_/swift
+    Reference - Offical docker images: https://hub.docker.com/_/swift
 
     Examples:
 
-    \(DocExamples.testCommand.indentLines(by: 2))
-      swift docker build --swift 5.2.2 --tag username/package:1.0
-      swift docker write-dockerfile --swift 5.2.2
-      swift docker cleanup # Remove all images created with swift docker test
+      swift docker test
+      swift docker build -- --configuration release
+      swift docker run your-executable --flag1
+      swift docker vapor
     """,
     shouldDisplay: true,
-    subcommands: [BuildCommand.self, TestCommand.self, RunCommand.self, BuildImageCommand.self, CleanupCommand.self, WriteDockerfileCommand.self]
+    subcommands: [BuildCommand.self, TestCommand.self, RunCommand.self, VaporCommand.self, BuildImageCommand.self, CleanupCommand.self, WriteDockerfileCommand.self]
   )
 
   public init() {}

@@ -9,7 +9,7 @@ extension DockerCommand {
     let projectLabel = FolderLabel.label(with: options.projectName)
     return """
     --label \(projectLabel) \
-    --label \(ActionLabel.label(with: .buildForTesting))
+    --label \(ActionLabel.label(with: action))
     """
   }
 
@@ -41,7 +41,7 @@ extension DockerCommand {
         outputDestination: nil,
         isVerbose: options.verbose
       )
-      if case .terminated(code: 1) =  result.exitStatus {
+      if case .terminated(code: 1) = result.exitStatus {
         throw DockerError("Unable to create image")
       }
     }
@@ -58,16 +58,24 @@ extension DockerCommand {
     try shell.runCleanExit("docker rm \(name)", outputDestination: nil, isVerbose: options.verbose)
   }
 
-  func makeDockerRunCommand(cmd: String, labels: String) -> String {
-    return """
+  func makeDockerRunCommand(cmd: String, labels: String, dockerFlags: String? = nil) -> String {
+    let dockerImage = options.dockerBaseImage.fullName
+    var dockerCommandAndFlags = """
     docker run --rm \
     --mount type=bind,source=\(options.absolutePath.pathString),target=/package \
     --mount type=volume,source=\(options.dockerVolumeName),target=/package/.build \
-    --workdir /package \
+    --workdir /package
+    """
+
+    dockerFlags.map { dockerCommandAndFlags += " \($0)" }
+
+    let labelsAndCommand = """
     \(labels) \
-    \(options.dockerBaseImage.fullName) \
+    \(dockerImage) \
     \(cmd)
     """
+
+    return dockerCommandAndFlags + " " + labelsAndCommand
   }
 
   func ifVerbosePrint(_ string: String) {

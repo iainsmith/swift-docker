@@ -52,8 +52,12 @@ enum ShellRunner: ShellProtocol {
       verbose: isVerbose,
       startNewProcessGroup: true
     )
+
     try process.launch()
-    return try process.waitUntilExit()
+    return try process.waitUntilExitOrInterupt(didInterupt: { _ in
+      controller.clearLine()
+      controller.writeLine("Shutting down container")
+    })
   }
 
   @discardableResult
