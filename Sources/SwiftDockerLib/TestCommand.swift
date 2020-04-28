@@ -2,7 +2,7 @@ import ArgumentParser
 import Foundation
 import TSCBasic
 
-public struct TestCommand: ParsableCommand {
+public struct TestCommand: ParsableCommand, DockerCommand {
   public static var configuration = CommandConfiguration(
     commandName: "test",
     abstract: "Test your swift package in a docker container.",
@@ -27,80 +27,26 @@ public struct TestCommand: ParsableCommand {
   @Flag(help: "Copy the .build folder from your machine to the container")
   var seedBuildFolder: Bool
 
-  @Flag(help: "Remove the docker .build folder")
-  var clean: Bool
-
   @Option(parsing: .remaining, help: "swift test arguments such as --configuration/--parallel")
   var args: [String]
 
-  private var outputDestinaton: OutputDestination = TerminalController(stream: stdoutStream) ?? stdoutStream
-  private var shell: ShellProtocol.Type = ShellRunner.self
+  private(set) var output: OutputDestination = TerminalController(stream: stdoutStream) ?? stdoutStream
+  private(set) var shell: ShellProtocol.Type = ShellRunner.self
 
   public func run() throws {
-    let projectLabel = FolderLabel.label(with: options.projectName)
+    let labels = makeLabels(action: .buildForTesting)
     ifVerbosePrint("Checking for existing docker volume")
+    try removeVolumeIfNeeded()
+    try createVolumeIfNeeded(labels: labels)
+    if seedBuildFolder { try copyBuildFolderToVolume() }
 
-    let existingImages = try shell.run(
-      "docker volume ls --quiet --filter label=\(projectLabel)",
-      outputDestination: nil,
-      isVerbose: options.verbose
-    )
-
-    let labels = """
-    --label \(projectLabel) \
-    --label \(ActionLabel.label(with: .buildForTesting))
-    """
-
-    if clean {
-      try shell.run("docker volume rm \(options.dockerVolumeName)", outputDestination: nil, isVerbose: options.verbose)
-    }
-
-    let existingVolume = try existingImages.utf8OutputLines().contains(options.dockerVolumeName)
-    if !existingVolume || clean {
-      ifVerbosePrint("Creating new docker volume to cache .build folder")
-      let result = try shell.run(
-        """
-        docker volume create \
-        \(labels) \
-        \(options.dockerVolumeName)
-        """,
-        outputDestination: nil,
-        isVerbose: options.verbose
-      )
-      if case .terminated(code: 1) =  result.exitStatus {
-        throw DockerError("Unable to create image")
-      }
-    }
-
-    if seedBuildFolder {
-      ifVerbosePrint("Copying .build folder to volume: \(options.dockerVolumeName)")
-      let name = "swiftdockercli-seed"
-      let folder = "/.build"
-      try shell.runCleanExit("docker container create  --name \(name) --mount type=volume,source=\(options.dockerVolumeName),target=\(folder) \(options.dockerBaseImage.fullName)", outputDestination: nil, isVerbose: options.verbose)
-      try shell.runCleanExit("docker cp \(options.buildFolderPath.pathString)/. \(name):\(folder)", outputDestination: nil, isVerbose: options.verbose)
-      try shell.runCleanExit("docker rm \(name)", outputDestination: nil, isVerbose: options.verbose)
-    }
-
-    outputDestinaton.writeLine("-> swift test")
-
+    output.writeLine("-> swift test - \(options.dockerBaseImage.fullName)")
     var swiftTest = "swift test"
-    if !args.isEmpty {
-      swiftTest += " \(args.joined(separator: " "))"
-    }
-
-    let testCommand = """
-    docker run --rm \
-    --mount type=bind,source=\(options.absolutePath.pathString),target=/package \
-    --mount type=volume,source=\(options.dockerVolumeName),target=/package/.build \
-    --workdir /package \
-    \(labels) \
-    \(options.dockerBaseImage.fullName) \
-    \(swiftTest)
-    """
-
+    if !args.isEmpty { swiftTest += " \(args.joined(separator: " "))" }
+    let testCommand = makeDockerRunCommand(cmd: "swift test", labels: labels)
     try shell.runWithStreamingOutput(
       testCommand,
-      controller: outputDestinaton,
+      controller: output,
       redirection: SquareBracketsLineRewriter.self,
       isVerbose: options.verbose
     )
@@ -108,19 +54,13 @@ public struct TestCommand: ParsableCommand {
 
   public init() {}
 
-
-  init(
-    options: CLIOptions,
-    seedBuildFolder: Bool = false,
-    clean: Bool = false,
-    args: [String] = [],
+  init(options: CLIOptions, seedBuildFolder: Bool = false, clean: Bool = false, args: [String] = [],
     output: OutputDestination = TerminalController(stream: stdoutStream) ?? stdoutStream,
     shell: ShellProtocol.Type = ShellRunner.self
   ) {
     self.options = options
-    self.clean = clean
     self.seedBuildFolder = false
-    outputDestinaton = output
+    self.output = output
     self.shell = shell
     self.args = args
   }
@@ -128,13 +68,6 @@ public struct TestCommand: ParsableCommand {
   enum CodingKeys: String, CodingKey {
     case options
     case seedBuildFolder
-    case clean
     case args
-  }
-
-  func ifVerbosePrint(_ string: String) {
-    if options.verbose {
-      outputDestinaton.writeLine(string)
-    }
   }
 }

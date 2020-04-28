@@ -82,7 +82,7 @@ struct BuildCommandRunner {
       try filesystem.writeFileContents(file, bytes: ByteString(encodingAsUTF8: dockerfileBody), atomically: true)
       if options.verbose { outputDestinaton.writeLine("Created temporary Dockerfile at \(file.pathString)") }
 
-      let buildCommand = DockerCommands.dockerBuild(tag: tag, dockerFilePath: file.pathString)
+      let buildCommand = DockerCommandsLegacy.dockerBuild(tag: tag, dockerFilePath: file.pathString)
       outputDestinaton.writeLine("-> docker build")
       let buildOutput = try shell.runWithStreamingOutput(
         buildCommand,

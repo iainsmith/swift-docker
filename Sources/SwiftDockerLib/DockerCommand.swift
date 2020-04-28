@@ -1,0 +1,75 @@
+protocol DockerCommand {
+  var options: CLIOptions { get }
+  var shell: ShellProtocol.Type { get }
+  var output: OutputDestination { get }
+}
+
+extension DockerCommand {
+  func makeLabels(action: ActionLabel) -> String {
+    let projectLabel = FolderLabel.label(with: options.projectName)
+    return """
+    --label \(projectLabel) \
+    --label \(ActionLabel.label(with: .buildForTesting))
+    """
+  }
+
+  func removeVolumeIfNeeded() throws {
+    if options.clean {
+      try shell.run("docker volume rm \(options.dockerVolumeName)", outputDestination: nil, isVerbose: options.verbose)
+    }
+  }
+
+  func createVolumeIfNeeded(labels: String) throws {
+    let projectLabel = FolderLabel.label(with: options.projectName)
+
+    let existingImages = try shell.run(
+      "docker volume ls --quiet --filter label=\(projectLabel)",
+      outputDestination: nil,
+      isVerbose: options.verbose
+    )
+
+    let existingVolume = try existingImages.utf8OutputLines().contains(options.dockerVolumeName)
+    if !existingVolume || options.clean {
+      ifVerbosePrint("Creating new docker volume to cache .build folder")
+      let result = try shell.run(
+        """
+        docker volume create \
+        \(labels) \
+        \(options.dockerVolumeName)
+        """,
+        outputDestination: nil,
+        isVerbose: options.verbose
+      )
+      if case .terminated(code: 1) =  result.exitStatus {
+        throw DockerError("Unable to create image")
+      }
+    }
+  }
+
+  func copyBuildFolderToVolume() throws {
+    ifVerbosePrint("Copying .build folder to volume: \(options.dockerVolumeName)")
+    let name = "swiftdockercli-seed"
+    let folder = "/.build"
+    try shell.runCleanExit("docker container create  --name \(name) --mount type=volume,source=\(options.dockerVolumeName),target=\(folder) \(options.dockerBaseImage.fullName)", outputDestination: nil, isVerbose: options.verbose)
+    try shell.runCleanExit("docker cp \(options.buildFolderPath.pathString)/. \(name):\(folder)", outputDestination: nil, isVerbose: options.verbose)
+    try shell.runCleanExit("docker rm \(name)", outputDestination: nil, isVerbose: options.verbose)
+  }
+
+  func makeDockerRunCommand(cmd: String, labels: String) -> String {
+    return """
+    docker run --rm \
+    --mount type=bind,source=\(options.absolutePath.pathString),target=/package \
+    --mount type=volume,source=\(options.dockerVolumeName),target=/package/.build \
+    --workdir /package \
+    \(labels) \
+    \(options.dockerBaseImage.fullName) \
+    \(cmd)
+    """
+  }
+
+  func ifVerbosePrint(_ string: String) {
+    if options.verbose {
+      output.writeLine(string)
+    }
+  }
+}

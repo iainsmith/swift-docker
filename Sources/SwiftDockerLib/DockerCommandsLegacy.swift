@@ -1,4 +1,4 @@
-enum DockerCommands {
+enum DockerCommandsLegacy {
   static func dockerBuild(tag: String, dockerFilePath: String) -> String {
     let file = dockerFilePath == "." ? dockerFilePath : "--file \(dockerFilePath)"
     let dockerBuild = "docker build -t \(tag.lowercased()) \(file) ."

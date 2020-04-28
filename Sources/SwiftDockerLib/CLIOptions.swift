@@ -15,6 +15,9 @@ public struct CLIOptions: ParsableArguments {
   @Flag(name: .shortAndLong, help: "Increase the level of output")
   var verbose: Bool
 
+  @Flag(help: "Remove the docker .build folder")
+  var clean: Bool
+
   var absolutePath: AbsolutePath {
     try! AbsolutePath(validating: url.path)
   }
@@ -41,12 +44,13 @@ public struct CLIOptions: ParsableArguments {
 
   public init() {}
 
-  public init(swift: String = "latest", image: String? = nil, path: String = ".", verbose: Bool) {
+  public init(swift: String = "latest", image: String? = nil, path: String = ".", verbose: Bool, clean: Bool = false) {
     self.swift = swift
     self.image = image
     let expanded = NSString(string: path).expandingTildeInPath
     self.url = URL(fileURLWithPath: expanded)
     self.verbose = verbose
+    self.clean = clean
   }
 
   public func validate() throws {
