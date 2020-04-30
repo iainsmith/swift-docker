@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `swift docker test` defaults to using the swift-tools-version specified in Package.swift
 
 ### Added
+- `swift docker repl` - Print the command to start the swift repl in a container
 - `swift docker vapor` - Run your vapor application in a container
 - `swift docker run` - mirrors swift run command
 - `swift docker build` - mirrors swift build

@@ -17,7 +17,7 @@ public struct SwiftDockerCLI: ParsableCommand {
       swift docker vapor
     """,
     shouldDisplay: true,
-    subcommands: [BuildCommand.self, TestCommand.self, RunCommand.self, VaporCommand.self, BuildImageCommand.self, CleanupCommand.self, WriteDockerfileCommand.self]
+    subcommands: [BuildCommand.self, TestCommand.self, RunCommand.self, VaporCommand.self, BuildImageCommand.self, ReplCommand.self, CleanupCommand.self, WriteDockerfileCommand.self]
   )
 
   public init() {}
