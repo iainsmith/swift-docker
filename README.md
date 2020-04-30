@@ -33,6 +33,7 @@ swift docker write-dockerfile # Write a ./Dockerfile to the repo
 * [x] Uses the swift docker image that matches the Package.swift manifest.
 * [x] Quickly free up space - `swift docker cleanup`
 * [x] Create a dockerfile for your project
+* [x] Quickly print a command to run the swift repl in the container - `swift docker repl`
 * [ ] Create a .dockerignore file to avoid adding .git directory to the image
 * [ ] Support multistage slim builds
 * [ ] Log output to a file
@@ -70,18 +71,17 @@ And install docker if you don't have it already
 ## Usage
 
 ```bash
-OVERVIEW: Build and test your swift packages in docker
+OVERVIEW: A simple workflow for building & testing swift packages with docker
 
-Simple commands for working with the official swift docker images
-https://hub.docker.com/_/swift
+Run swift docker <subcommand> --help for subcommand details
+Reference - Offical docker images: https://hub.docker.com/_/swift
 
-examples:
+Examples:
 
-swift docker test #test the package in the current directory
-swift docker test --swift 5.1 # test your package against swift:5.1
-swift docker test --path ~/code/my-package # test a package in a directory
-swift docker write-dockerfile --swift 5.2.2-slim
-swift docker cleanup # Remove all images created with swift docker test
+swift docker test
+swift docker build -- --configuration release
+swift docker run your-executable --flag1
+swift docker vapor
 
 USAGE: swift-docker <subcommand>
 
@@ -89,7 +89,12 @@ OPTIONS:
 -h, --help              Show help information.
 
 SUBCOMMANDS:
+build                   Build your swift package in a docker container.
 test                    Test your swift package in a docker container.
+run                     Run your swift package in a docker container.
+vapor                   Run your vapor web application in a container.
+build-image             Build a docker image for your swift package.
+repl                    print the command to run the swift repl in a container.
 cleanup                 Remove temporary docker images.
 write-dockerfile        Write a dockerfile to disk.
 ```

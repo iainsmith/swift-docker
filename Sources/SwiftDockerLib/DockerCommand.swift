@@ -5,6 +5,10 @@ protocol DockerCommand {
 }
 
 extension DockerCommand {
+  var lldbPermissions: String {
+    "--cap-add=SYS_PTRACE --security-opt seccomp=unconfined --security-opt apparmor=unconfined"
+  }
+
   func makeLabels(action: ActionLabel) -> String {
     let projectLabel = FolderLabel.label(with: options.projectName)
     return """
